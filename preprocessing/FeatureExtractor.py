@@ -209,8 +209,8 @@ def main():
     pipeline = MultimodalFeaturePipeline()
 
     # Define custom directories
-    input_directory = r'D:\trainer\data'  # Replace with your input directory path
-    output_directory = r'D:\trainer\data'  # Replace with your output directory path
+    input_directory = r'D:\AI-based_trainer\data'  # Replace with your input directory path
+    output_directory = r'D:\AI-based_trainer\data'  # Replace with your output directory path
 
     try:
         # Ensure the output directory exists

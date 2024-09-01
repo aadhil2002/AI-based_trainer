@@ -204,7 +204,7 @@ class MultiModalPreprocessor:
     def get_preprocessed_data(self):
         return self.preprocessed_data
 
-    def save_preprocessed_data(self, directory='D:\trainer\data', filename='preprocessed_data.pkl'):
+    def save_preprocessed_data(self, directory='D:\AI-based_trainer\data', filename='preprocessed_data.pkl'):
         """
         Save the preprocessed data to a file using pickle.
 
@@ -225,7 +225,7 @@ class MultiModalPreprocessor:
         except Exception as e:
             logging.error(f"Error saving preprocessed data: {str(e)}")
 
-    def load_preprocessed_data(self, directory='D:\trainer\data', filename='preprocessed_data.pkl'):
+    def load_preprocessed_data(self, directory='D:\AI-based_trainer\data', filename='preprocessed_data.pkl'):
         """
         Load preprocessed data from a file.
 
@@ -255,7 +255,7 @@ if __name__ == "__main__":
     preprocessor = MultiModalPreprocessor()
     
     # Specify the directory to save/load the preprocessed data
-    data_directory = r'D:\trainer\data'
+    data_directory = r'D:\AI-based_trainer\data'
 
     # Check if preprocessed data file exists
     if not preprocessor.load_preprocessed_data(directory=data_directory):
