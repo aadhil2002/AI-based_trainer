@@ -1,0 +1,5 @@
+/data/preprocessed_data.pkl
+/data/interview_analysis_results.json
+/ffmpeg-python/
+/model_cache/
+/preprocessing/__pycache__
