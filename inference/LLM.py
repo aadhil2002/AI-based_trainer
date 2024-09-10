@@ -4,37 +4,66 @@ import logging
 from typing import Dict, Any
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
-from argparse import ArgumentParser
+from groq import Groq
+
+# Configuration
+CONFIG = {
+    "model_name": "meta-llama/Meta-Llama-3.1-8B-Instruct",
+    "device": "auto",
+    "max_length": 2048,
+    "temperature": 0.7,
+    "top_p": 0.95,
+    "input_file": r"D:\AI-based_trainer\data\interview_analysis_results.json",
+    "output_file": r"interview_improvement_tips.txt",
+    "api_key": "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"  # Replace with your actual Groq API key
+}
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Default configurations
-DEFAULT_MODEL_NAME = "meta-llama/Llama-3.1-7b-chat-hf"
-DEFAULT_MAX_LENGTH = 2048
-DEFAULT_TEMPERATURE = 0.7
-DEFAULT_TOP_P = 0.95
-
 class InterviewTipGenerator:
-    def __init__(self, model_name: str, device: str = "auto"):
-        self.model_name = model_name
-        self.device = device
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.model_name = config['model_name']
+        self.device = config['device']
         self.tokenizer = None
         self.model = None
+        self.groq_client = None
         self.load_model()
+        self.load_groq_client()
 
     def load_model(self):
         logger.info(f"Loading model: {self.model_name}")
         try:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            # Load the tokenizer and model
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token="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")
+            
+            # Check if tokenizer has a pad token; if not, add one
+            if self.tokenizer.pad_token is None:
+                logger.info("Tokenizer does not have a pad token. Setting `eos_token` as `pad_token`.")
+                self.tokenizer.pad_token = self.tokenizer.eos_token
+            
+            # Load the model
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_name, 
                 torch_dtype=torch.float16, 
-                device_map=self.device
+                device_map=self.device,
+                token="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"
             )
         except Exception as e:
             logger.error(f"Error loading model: {str(e)}")
+            raise
+
+    def load_groq_client(self):
+        logger.info(f"Loading Groq client for model: llama3-8b-8192")
+        try:
+            api_key = self.config.get('api_key') or os.getenv('GROQ_API_KEY')
+            if not api_key:
+                raise ValueError("Groq API key not provided.")
+            self.groq_client = Groq(api_key=api_key)
+        except Exception as e:
+            logger.error(f"Error initializing Groq client: {str(e)}")
             raise
 
     @staticmethod
@@ -71,19 +100,21 @@ class InterviewTipGenerator:
         
         return prompt
 
-    def generate_tips(self, prompt: str, max_length: int, temperature: float, top_p: float) -> str:
+    def generate_tips(self, prompt: str) -> str:
         logger.info("Generating tips")
-        inputs = self.tokenizer.encode(prompt, return_tensors="pt").to(self.model.device)
+        inputs = self.tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+        inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
         
         try:
             with torch.no_grad():
                 outputs = self.model.generate(
-                    inputs,
-                    max_length=max_length,
+                    **inputs,
+                    max_length=self.config['max_length'],
                     num_return_sequences=1,
-                    temperature=temperature,
-                    top_p=top_p,
-                    do_sample=True
+                    temperature=self.config['temperature'],
+                    top_p=self.config['top_p'],
+                    do_sample=True,
+                    pad_token_id=self.tokenizer.pad_token_id  # Ensure pad token is used
                 )
             
             response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -92,26 +123,44 @@ class InterviewTipGenerator:
             logger.error(f"Error generating tips: {str(e)}")
             raise
 
-def main(args):
+    def groq_inference(self, prompt: str):
+        logger.info("Running inference using Groq")
+        completion = self.groq_client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=self.config['temperature'],
+            max_tokens=8192,
+            top_p=self.config['top_p'],
+            stream=True,
+            stop=None,
+        )
+        
+        result = ""
+        for chunk in completion:
+            result += chunk.choices[0].delta.content or ""
+        
+        return result
+
+def main():
     try:
         # Initialize the tip generator
-        tip_generator = InterviewTipGenerator(args.model_name, args.device)
+        tip_generator = InterviewTipGenerator(CONFIG)
         
-        # Load the JSON file
-        analysis_results = tip_generator.load_json_file(args.input_file)
+        # Load the interview analysis results
+        analysis_results = tip_generator.load_json_file(CONFIG['input_file'])
         
         # Generate the prompt
         prompt = tip_generator.generate_prompt(analysis_results)
         
-        # Generate tips using the LLM
-        tips = tip_generator.generate_tips(prompt, args.max_length, args.temperature, args.top_p)
+        # Generate tips using the LLM (local or Groq)
+        tips = tip_generator.groq_inference(prompt)
         
         # Print the generated tips
         logger.info("Generated Interview Improvement Tips:")
         print(tips)
         
         # Save the tips to a file
-        output_file = args.output_file or "interview_improvement_tips.txt"
+        output_file = CONFIG['output_file']
         with open(output_file, "w") as f:
             f.write(tips)
         logger.info(f"Tips saved to: {output_file}")
@@ -120,14 +169,4 @@ def main(args):
         logger.error(f"An error occurred: {str(e)}")
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description="Generate interview improvement tips using LLM")
-    parser.add_argument("--input_file", required=True, help="Path to the JSON file containing interview analysis results")
-    parser.add_argument("--output_file", help="Path to save the generated tips (default: interview_improvement_tips.txt)")
-    parser.add_argument("--model_name", default=DEFAULT_MODEL_NAME, help="Name of the Hugging Face model to use")
-    parser.add_argument("--device", default="auto", choices=["cpu", "cuda", "auto"], help="Device to run the model on")
-    parser.add_argument("--max_length", type=int, default=DEFAULT_MAX_LENGTH, help="Maximum length of generated text")
-    parser.add_argument("--temperature", type=float, default=DEFAULT_TEMPERATURE, help="Temperature for text generation")
-    parser.add_argument("--top_p", type=float, default=DEFAULT_TOP_P, help="Top-p value for text generation")
-    
-    args = parser.parse_args()
-    main(args)
+    main()
