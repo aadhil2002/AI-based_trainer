@@ -1,1 +1,9 @@
 /data/
+
+# virtualenv
+/trainer/
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
