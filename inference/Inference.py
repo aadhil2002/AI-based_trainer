@@ -32,11 +32,11 @@ from analysis.phrasing_language import PhrasingLanguage
 from preprocessing.FeatureExtractor import MultimodalFeaturePipeline
 
 # Set up logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Configuration for input and output directories
-INPUT_DIR = r"D:\trainer\data"
-OUTPUT_DIR = r"D:\trainer\data"
+INPUT_DIR = r"D:\AI-based_trainer\data"
+OUTPUT_DIR = r"D:\AI-based_trainer\data"
 
 def log_exception(e):
     logging.error(f"An error occurred: {str(e)}")

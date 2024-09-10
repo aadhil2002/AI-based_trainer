@@ -9,36 +9,50 @@ import scipy.signal
 from typing import List, Dict, Tuple
 import traceback
 import subprocess
+import logging
 
-def is_ffmpeg_available():
-    try:
-        subprocess.run(["ffmpeg", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Try to use system PATH first
-ffmpeg_path = "ffmpeg"
+# Global flag for FFmpeg configuration
+ffmpeg_configured = False
 
-# If that doesn't work, specify the full path
-if not is_ffmpeg_available():
-    ffmpeg_path = r"D:\tools\ffmpeg-7.0.2-essentials_build\bin\ffmpeg.exe"  # Adjust this path as needed
-    os.environ["PATH"] += os.pathsep + os.path.dirname(ffmpeg_path)
+def configure_ffmpeg():
+    global ffmpeg_configured
+    if ffmpeg_configured:
+        return
 
-AudioSegment.converter = ffmpeg_path
-AudioSegment.ffmpeg = ffmpeg_path
-AudioSegment.ffprobe = ffmpeg_path.replace("ffmpeg.exe", "ffprobe.exe")
+    def is_ffmpeg_available():
+        try:
+            subprocess.run(["ffmpeg", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+            return True
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return False
 
-# Verify FFmpeg is available
-if not is_ffmpeg_available():
-    raise EnvironmentError("FFmpeg is not available. Please check your installation.")
+    # Try to use system PATH first
+    ffmpeg_path = "ffmpeg"
 
-print("FFmpeg configuration completed successfully.")
+    # If that doesn't work, specify the full path
+    if not is_ffmpeg_available():
+        ffmpeg_path = r"D:\tools\ffmpeg-7.0.2-essentials_build\bin\ffmpeg.exe"  # Adjust this path as needed
+        os.environ["PATH"] += os.pathsep + os.path.dirname(ffmpeg_path)
+
+    AudioSegment.converter = ffmpeg_path
+    AudioSegment.ffmpeg = ffmpeg_path
+    AudioSegment.ffprobe = ffmpeg_path.replace("ffmpeg.exe", "ffprobe.exe")
+
+    # Verify FFmpeg is available
+    if not is_ffmpeg_available():
+        raise EnvironmentError("FFmpeg is not available. Please check your installation.")
+
+    logger.info("FFmpeg configuration completed successfully.")
+    ffmpeg_configured = True
 
 # Configuration dictionary
 config = {
-    'video_directory': r'D:\trainer\dataset\Video_Song_Actor_01\Actor_01',
-    'label_directory': r'D:\trainer\dataset\Video_Song_Actor_01\Label',
+    'video_directory': r'D:\AI-based_trainer\dataset\Video_Song_Actor_01\Actor_01',
+    'label_directory': r'D:\AI-based_trainer\dataset\Video_Song_Actor_01\Label',
     'file_extensions': ['.mp4', '.avi', '.mov'],
     'label_extension': '.json',  # Assuming labels are in JSON format
     'max_sample_files': 3,
@@ -132,7 +146,7 @@ class VideoFileReader:
     def summary(self) -> None:
         """Provide a summary report of the loaded videos and labels."""
         if not self.video_metadata:
-            print("No valid video and label pairs loaded.")
+            logger.info("No valid video and label pairs loaded.")
             return
         
         total_pairs = len(self.video_metadata)
@@ -158,13 +172,13 @@ class VideoFileReader:
                 f"   Label Data Sample: {str(data['label_data'])[:100]}...\n"
             )
         
-        print(summary_report)
+        logger.info(summary_report)
 
     def _log_error(self, error_message: str) -> None:
         """Log error messages to the specified error log file."""
         with open(self.error_log_file, 'a') as f:
             f.write(f"{error_message}\n")
-        print(error_message)
+        logger.error(error_message)
 
 class MultiModalProcessor(VideoFileReader):
     def __init__(self, config: Dict):
@@ -181,8 +195,8 @@ class MultiModalProcessor(VideoFileReader):
                 if processed:
                     self.processed_data.append(processed)
             except Exception as e:
-                print(f"Error processing {data['video_file']}:")
-                print(traceback.format_exc())
+                logger.error(f"Error processing {data['video_file']}:")
+                logger.error(traceback.format_exc())
                 self._log_error(f"Error processing {data['video_file']}: {str(e)}")
 
     def process_single_file(self, data: Dict) -> Dict:
@@ -190,11 +204,11 @@ class MultiModalProcessor(VideoFileReader):
         file_name = data['video_file']
         video_path = data['video_path']
         
-        print(f"Processing file: {file_name}")
-        print(f"Full path: {video_path}")
+        logger.info(f"Processing file: {file_name}")
+        logger.info(f"Full path: {video_path}")
         
         if not os.path.exists(video_path):
-            print(f"Error: File does not exist: {video_path}")
+            logger.error(f"Error: File does not exist: {video_path}")
             return None
         
         # Process visual data
@@ -258,7 +272,7 @@ class MultiModalProcessor(VideoFileReader):
         
             return spec_db, audio_label
         except Exception as e:
-            print(f"Error processing audio in {video_path}: {type(e).__name__}: {str(e)}")
+            logger.error(f"Error processing audio in {video_path}: {type(e).__name__}: {str(e)}")
             return np.array([]), []
 
     def process_text(self, video_path: str) -> Tuple[str, List[str]]:
@@ -278,7 +292,7 @@ class MultiModalProcessor(VideoFileReader):
         except sr.UnknownValueError:
             text = ""
         except Exception as e:
-            print(f"Error in speech recognition: {str(e)}")
+            logger.error(f"Error in speech recognition: {str(e)}")
             text = ""
         finally:
             if os.path.exists(audio_file):
@@ -296,7 +310,7 @@ class MultiModalProcessor(VideoFileReader):
     def summary(self) -> None:
         """Provide a summary report of the processed data."""
         if not self.processed_data:
-            print("No processed data available.")
+            logger.info("No processed data available.")
             return
         
         total_files = len(self.processed_data)
@@ -319,25 +333,26 @@ class MultiModalProcessor(VideoFileReader):
                 f"   Overall label: {overall_label}\n"
             )
         
-        print(summary_report)
+        logger.info(summary_report)
 
 # Example usage
 if __name__ == "__main__":
     try:
+        configure_ffmpeg()
         processor = MultiModalProcessor(config)
-        print("Initialized MultiModalProcessor")
+        logger.info("Initialized MultiModalProcessor")
         
-        print("Processing files...")
+        logger.info("Processing files...")
         processor.process_files()
         
-        print("Generating summary...")
+        logger.info("Generating summary...")
         processor.summary()
         
         processed_data = processor.get_processed_data()
-        print(f"Total processed data points: {len(processed_data)}")
+        logger.info(f"Total processed data points: {len(processed_data)}")
         
         if len(processed_data) == 0:
-            print("No data was processed successfully. Check the error log for details.")
+            logger.warning("No data was processed successfully. Check the error log for details.")
     except Exception as e:
-        print(f"An error occurred during execution: {str(e)}")
-        print(traceback.format_exc())
+        logger.error(f"An error occurred during execution: {str(e)}")
+        logger.error(traceback.format_exc())
