@@ -5,6 +5,10 @@ from typing import Dict, Any
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 from groq import Groq
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configuration
 CONFIG = {
@@ -15,7 +19,7 @@ CONFIG = {
     "top_p": 0.95,
     "input_file": r"D:\AI-based_trainer\data\interview_analysis_results.json",
     "output_file": r"interview_improvement_tips.txt",
-    "api_key": "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"  # Replace with your actual Groq API key
+    "api_key": os.getenv('GROQ_API_KEY')  # API key is now loaded from the .env file
 }
 
 # Set up logging
@@ -30,30 +34,7 @@ class InterviewTipGenerator:
         self.tokenizer = None
         self.model = None
         self.groq_client = None
-        self.load_model()
         self.load_groq_client()
-
-    def load_model(self):
-        logger.info(f"Loading model: {self.model_name}")
-        try:
-            # Load the tokenizer and model
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token="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")
-            
-            # Check if tokenizer has a pad token; if not, add one
-            if self.tokenizer.pad_token is None:
-                logger.info("Tokenizer does not have a pad token. Setting `eos_token` as `pad_token`.")
-                self.tokenizer.pad_token = self.tokenizer.eos_token
-            
-            # Load the model
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_name, 
-                torch_dtype=torch.float16, 
-                device_map=self.device,
-                token="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"
-            )
-        except Exception as e:
-            logger.error(f"Error loading model: {str(e)}")
-            raise
 
     def load_groq_client(self):
         logger.info(f"Loading Groq client for model: llama3-8b-8192")
