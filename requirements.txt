@@ -9,11 +9,11 @@ astunparse==1.6.3
 async-timeout==4.0.3
 attrs==24.2.0
 audioread==3.0.1
-Brotli @ file:///C:/b/abs_3d36mno480/croot/brotli-split_1714483178642/work
+# Brotli @ file:///C:/b/abs_3d36mno480/croot/brotli-split_1714483178642/work
 cachetools==5.5.0
-certifi @ file:///home/conda/feedstock_root/build_artifacts/certifi_1720457958366/work/certifi
+# certifi @ file:///home/conda/feedstock_root/build_artifacts/certifi_1720457958366/work/certifi
 cffi==1.17.0
-charset-normalizer @ file:///croot/charset-normalizer_1721748349566/work
+# charset-normalizer @ file:///croot/charset-normalizer_1721748349566/work
 click==8.1.7
 colorama==0.4.6
 colorlog==6.8.2
@@ -23,7 +23,7 @@ decorator==5.1.1
 docopt==0.6.2
 einops==0.8.0
 # Editable install with no version control (ffmpeg-python==0.2.0)
--e d:\trainer\ffmpeg-python
+# -e d:\trainer\ffmpeg-python
 filelock==3.15.4
 flatbuffers==24.3.25
 fonttools==4.53.1
@@ -31,7 +31,7 @@ frozenlist==1.4.1
 fsspec==2024.6.1
 future==1.0.0
 gast==0.4.0
-gmpy2 @ file:///C:/ci/gmpy2_1645438895476/work
+# gmpy2 @ file:///C:/ci/gmpy2_1645438895476/work
 google-auth==2.34.0
 google-auth-oauthlib==0.4.6
 google-pasta==0.2.0
@@ -40,11 +40,11 @@ grpcio==1.66.1
 h5py==3.11.0
 huggingface-hub==0.24.6
 HyperPyYAML==1.2.2
-idna @ file:///C:/b/abs_aad84bnnw5/croot/idna_1714398896795/work
+# idna @ file:///C:/b/abs_aad84bnnw5/croot/idna_1714398896795/work
 intel-openmp==2021.4.0
 jax==0.4.31
 jaxlib==0.4.31
-Jinja2 @ file:///C:/b/abs_92fccttino/croot/jinja2_1716993447201/work
+# Jinja2 @ file:///C:/b/abs_92fccttino/croot/jinja2_1716993447201/work
 joblib==1.4.2
 julius==0.2.7
 keras==3.5.0
@@ -64,15 +64,15 @@ matplotlib==3.9.2
 mdurl==0.1.2
 mediapipe==0.10.14
 mkl==2021.4.0
-mkl-fft==1.3.1
-mkl-random @ file:///C:/ci_310/mkl_random_1643050563308/work
+# mkl-fft==1.3.6
+# mkl-random @ file:///C:/ci_310/mkl_random_1643050563308/work
 mkl-service==2.4.0
 ml-dtypes==0.4.0
-mpmath @ file:///C:/b/abs_7833jrbiox/croot/mpmath_1690848321154/work
+# mpmath @ file:///C:/b/abs_7833jrbiox/croot/mpmath_1690848321154/work
 msgpack==1.0.8
 multidict==6.0.5
 namex==0.0.8
-networkx @ file:///C:/b/abs_36fmumtynt/croot/networkx_1720002497414/work
+# networkx @ file:///C:/b/abs_36fmumtynt/croot/networkx_1720002497414/work
 nltk==3.9.1
 numba==0.60.0
 numpy==1.26.4
@@ -102,14 +102,14 @@ pydub==0.25.1
 Pygments==2.18.0
 pyparsing==3.1.4
 pyphen==0.16.0
-PySocks @ file:///C:/ci_310/pysocks_1642089375450/work
+# PySocks @ file:///C:/ci_310/pysocks_1642089375450/work
 python-dateutil==2.9.0.post0
 pytorch-lightning==2.4.0
 pytorch-metric-learning==2.6.0
 pytz==2024.1
 PyYAML==6.0.2
 regex==2024.7.24
-requests @ file:///C:/b/abs_9frifg92q2/croot/requests_1721410901096/work
+# requests @ file:///C:/b/abs_9frifg92q2/croot/requests_1721410901096/work
 requests-oauthlib==2.0.0
 rich==13.8.0
 rsa==4.9
@@ -121,7 +121,7 @@ scipy==1.14.0
 semver==3.0.2
 sentencepiece==0.2.0
 shellingham==1.5.4
-six @ file:///tmp/build/80754af9/six_1644875935023/work
+# six @ file:///tmp/build/80754af9/six_1644875935023/work
 sortedcontainers==2.4.0
 sounddevice==0.5.0
 soundfile==0.12.1
@@ -155,8 +155,8 @@ typer==0.12.5
 typing==3.7.4.3
 typing_extensions==4.12.2
 tzdata==2024.1
-urllib3 @ file:///C:/b/abs_a7hvzm4y95/croot/urllib3_1718912661242/work
+# urllib3 @ file:///C:/b/abs_a7hvzm4y95/croot/urllib3_1718912661242/work
 Werkzeug==3.0.4
-win-inet-pton @ file:///C:/ci_310/win_inet_pton_1642658466512/work
+# win-inet-pton @ file:///C:/ci_310/win_inet_pton_1642658466512/work
 wrapt==1.16.0
 yarl==1.9.4

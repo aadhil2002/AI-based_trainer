@@ -1,3 +1,11 @@
 /data/
 /interview_improvement_tips.txt
 /inference/__pycache__/
+
+# virtualenv
+/trainer/
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
