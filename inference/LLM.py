@@ -14,8 +14,8 @@ load_dotenv()
 CONFIG = {
     "model_name": "meta-llama/Meta-Llama-3.1-8B-Instruct",
     "device": "auto",
-    "max_length": 2048,
-    "temperature": 0.7,
+    "max_length": 8096,
+    "temperature": 0.1,
     "top_p": 0.95,
     "input_file": r"D:\AI-based_trainer\data\interview_analysis_results.json",
     "output_file": r"interview_improvement_tips.txt",
@@ -132,6 +132,10 @@ def main():
         
         # Generate the prompt
         prompt = tip_generator.generate_prompt(analysis_results)
+        
+        # Print the prompt for verification
+        logger.info("Generated Prompt:")
+        print(prompt)  # Printing the optimized prompt
         
         # Generate tips using the LLM (local or Groq)
         tips = tip_generator.groq_inference(prompt)
